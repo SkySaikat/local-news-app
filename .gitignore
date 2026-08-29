@@ -1,0 +1,17 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Firebase config — each developer supplies their own from the Firebase console.
+# See SETUP.md. Keep the template committed instead.
+app/google-services.json
+
+# API keys are injected from local.properties (Maps / OpenWeather in v2.0)
+secrets.properties

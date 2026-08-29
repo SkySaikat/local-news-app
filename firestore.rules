@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in user may read any profile (needed later to show post authors)
+    // but may only create or edit their own document.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.uid == userId
+                    // Nobody gets to hand themselves a head start on reputation.
+                    && request.resource.data.trustScore == 100;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    // trustScore is server-owned; clients can't raise it.
+                    && request.resource.data.trustScore == resource.data.trustScore;
+
+      allow delete: if false;
+    }
+
+    // Placeholders for v2.0 — locked until Spot CRUD ships.
+    match /posts/{postId} {
+      allow read, write: if false;
+    }
+  }
+}

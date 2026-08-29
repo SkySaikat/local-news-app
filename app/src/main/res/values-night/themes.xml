@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.LocalNews" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background_dark</item>
+    </style>
+
+    <style name="Theme.LocalNews.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.LocalNews</item>
+    </style>
+</resources>

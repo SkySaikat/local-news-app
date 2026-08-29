@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_teal">#FF00696E</color>
+    <color name="brand_teal_dark">#FF00363A</color>
+    <color name="splash_background">#FFF4FBFA</color>
+    <color name="splash_background_dark">#FF0E1516</color>
+</resources>

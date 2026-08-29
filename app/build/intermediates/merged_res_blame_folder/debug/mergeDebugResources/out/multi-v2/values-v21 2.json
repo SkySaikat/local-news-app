@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.chittagong.localnews.app-mergeDebugResources-61:/values-v21/values-v21.xml",
+            "map": [
+                {
+                    "source": "/Users/saikatchowdhury444gmail.com/.gradle/caches/9.7.1/transforms/1c215c6fb6d7f56dda0874b1cd77e108/transformed/credentials-play-services-auth-1.2.0-rc01/res/values-v21/values-v21.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "543"
+                    }
+                }
+            ]
+        }
+    ]
+}
