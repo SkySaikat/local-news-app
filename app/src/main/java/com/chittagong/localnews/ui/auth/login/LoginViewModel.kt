@@ -7,6 +7,7 @@ import com.chittagong.localnews.core.common.UiEvent
 import com.chittagong.localnews.core.util.Validators
 import com.chittagong.localnews.domain.usecase.SendPasswordResetUseCase
 import com.chittagong.localnews.domain.usecase.SignInUseCase
+import com.chittagong.localnews.domain.usecase.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -42,6 +43,7 @@ data class LoginUiState(
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val signIn: SignInUseCase,
+    private val signInWithGoogle: SignInWithGoogleUseCase,
     private val sendPasswordReset: SendPasswordResetUseCase,
 ) : ViewModel() {
 
@@ -107,6 +109,35 @@ class LoginViewModel @Inject constructor(
                         ),
                     )
                 }
+        }
+    }
+
+    fun onGoogleSignInSuccess(idToken: String) {
+        if (_uiState.value.isSubmitting) return
+        _uiState.update { it.copy(isSubmitting = true) }
+
+        viewModelScope.launch {
+            signInWithGoogle(idToken)
+                .onSuccess {
+                    _uiState.update { current -> current.copy(isSubmitting = false) }
+                    _events.send(UiEvent.ShowSnackbar("Welcome back!", SnackbarKind.Success))
+                    _events.send(UiEvent.NavigateToHome)
+                }
+                .onFailure { throwable ->
+                    _uiState.update { current -> current.copy(isSubmitting = false) }
+                    _events.send(
+                        UiEvent.ShowSnackbar(
+                            throwable.message ?: "Google sign-in failed.",
+                            SnackbarKind.Error,
+                        ),
+                    )
+                }
+        }
+    }
+
+    fun onGoogleSignInError(message: String) {
+        viewModelScope.launch {
+            _events.send(UiEvent.ShowSnackbar(message, SnackbarKind.Error))
         }
     }
 

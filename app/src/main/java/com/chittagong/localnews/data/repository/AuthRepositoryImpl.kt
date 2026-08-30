@@ -6,6 +6,7 @@ import com.chittagong.localnews.domain.model.AuthUser
 import com.chittagong.localnews.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,6 +45,15 @@ class AuthRepositoryImpl @Inject constructor(
             runCatching {
                 val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                 requireNotNull(result.user?.toAuthUser()) { "Sign-in returned no user." }
+            }.mapError()
+        }
+
+    override suspend fun signInWithGoogle(idToken: String): Result<AuthUser> =
+        withContext(ioDispatcher) {
+            runCatching {
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+                val result = firebaseAuth.signInWithCredential(credential).await()
+                requireNotNull(result.user?.toAuthUser()) { "Google sign-in returned no user." }
             }.mapError()
         }
 

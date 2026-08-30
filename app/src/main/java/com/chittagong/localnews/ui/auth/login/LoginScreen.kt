@@ -23,17 +23,24 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chittagong.localnews.BuildConfig
 import com.chittagong.localnews.core.common.UiEvent
 import com.chittagong.localnews.ui.components.AppSnackbarHost
 import com.chittagong.localnews.ui.components.AppTextField
@@ -41,8 +48,12 @@ import com.chittagong.localnews.ui.components.AuthBackdrop
 import com.chittagong.localnews.ui.components.BrandMark
 import com.chittagong.localnews.ui.components.PasswordTextField
 import com.chittagong.localnews.ui.components.PrimaryButton
+import com.chittagong.localnews.ui.components.SecondaryButton
 import com.chittagong.localnews.ui.components.rememberAppSnackbarController
 import com.chittagong.localnews.ui.theme.spacing
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -54,6 +65,9 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarController = rememberAppSnackbarController()
     val keyboard = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val credentialManager = CredentialManager.create(context)
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -150,6 +164,40 @@ fun LoginScreen(
                     enabled = uiState.isSubmitEnabled,
                     loading = uiState.isSubmitting,
                     icon = Icons.AutoMirrored.Filled.Login,
+                )
+
+                Spacer(Modifier.height(MaterialTheme.spacing.md))
+
+                SecondaryButton(
+                    text = "Continue with Google",
+                    onClick = {
+                        keyboard?.hide()
+                        scope.launch {
+                            try {
+                                val googleIdOption = GetGoogleIdOption.Builder()
+                                    .setFilterByAuthorizedAccounts(false)
+                                    .setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)
+                                    .build()
+
+                                val request = GetCredentialRequest.Builder()
+                                    .addCredentialOption(googleIdOption)
+                                    .build()
+
+                                val result = credentialManager.getCredential(context, request)
+                                val credential = result.credential
+
+                                if (credential is GoogleIdTokenCredential) {
+                                    viewModel.onGoogleSignInSuccess(credential.idToken)
+                                } else {
+                                    viewModel.onGoogleSignInError("Unexpected credential type.")
+                                }
+                            } catch (e: GetCredentialException) {
+                                viewModel.onGoogleSignInError(e.message ?: "Google sign-in failed.")
+                            }
+                        }
+                    },
+                    enabled = !uiState.isSubmitting,
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(Modifier.height(MaterialTheme.spacing.lg))

@@ -17,6 +17,8 @@ interface AuthRepository {
 
     suspend fun signIn(email: String, password: String): Result<AuthUser>
 
+    suspend fun signInWithGoogle(idToken: String): Result<AuthUser>
+
     /** Creates the credential only. Profile document creation is [UserRepository]'s job. */
     suspend fun signUp(email: String, password: String, displayName: String): Result<AuthUser>
 
