@@ -36,8 +36,8 @@ fun AppTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    leadingIcon: ImageVector,
     modifier: Modifier = Modifier,
+    leadingIcon: ImageVector? = null,
     placeholder: String? = null,
     errorMessage: String? = null,
     enabled: Boolean = true,
@@ -55,12 +55,12 @@ fun AppTextField(
             onValueChange = onValueChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .semantics { if (isError) error(errorMessage) },
+                .semantics { if (errorMessage != null) error(errorMessage) },
             enabled = enabled,
             label = { Text(label) },
             placeholder = placeholder?.let { { Text(it) } },
-            leadingIcon = {
-                Icon(imageVector = leadingIcon, contentDescription = null)
+            leadingIcon = leadingIcon?.let {
+                { Icon(imageVector = it, contentDescription = null) }
             },
             trailingIcon = trailingContent,
             isError = isError,
