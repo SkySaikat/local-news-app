@@ -72,6 +72,7 @@ class AuthRepositoryImpl @Inject constructor(
                 .setDisplayName(displayName)
                 .build()
             user.updateProfile(profileUpdate).await()
+            user.sendEmailVerification().await()
             user.toAuthUser().copy(displayName = displayName)
         }.mapError()
     }
